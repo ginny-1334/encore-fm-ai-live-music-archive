@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encore FM — Make Your Live Music Right</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+
+  <!-- NAV -->
+ 
+<nav>
+    <a href="index.html" class="nav-logo">Encore<span>FM</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#artists">Artists</a></li>
+      <li><a href="index.html#vibes">Reviews</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="add.html" class="btn-primary">+ Add Setlist</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-bg">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-eyebrow">Live Music Intelligence</div>
+      <h1 class="hero-title">
+        Make Your<br>
+        <span class="line-italic">Live Music</span><br>
+        Right.
+      </h1>
+      <p class="hero-subtitle">
+        Explore live music archives, fan-submitted setlists, and future AI-powered concert insights in one place.
+      </p>
+
+    </div>
+
+    <div class="hero-search">
+      <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" type="text" placeholder="Search artists, setlists, venues..." id="heroSearch">
+        <button class="search-btn" onclick="doSearch()">Search</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRENDING ARTISTS -->
+  
+  <section class="trending" id="artists">
+    <div class="section-label">Trending Artists</div>
+    <h2 class="section-title">The <em>Scene</em> Right Now</h2>
+
+    <div class="artists-scroll-hint">Scroll to explore</div>
+
+<!-- Trending artist cards rendered dynamically by main.js -->
+    <div class="artists-scroll fade-up" id="artistsGrid">
+      <div class="loading-msg" style="opacity:0.4;padding:2rem;">Loading artists…</div>
+    </div>
+
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- RECENT VIBE CHECKS -->
+  <section class="vibe-section" id="vibes">
+    <div class="section-label">AI Vibe Checks</div>
+    <h2 class="section-title">Recently <em>Reviewed</em></h2>
+    <p class="section-sub">AI-synthesized from the latest show reviews</p>
+
+<!-- Vibe check cards rendered dynamically by main.js -->
+    <div class="vibe-cards-row fade-up" id="vibeCardsRow">
+      <div class="loading-msg" style="opacity:0.4;padding:2rem;">Loading recent vibes…</div>
+    </div>
+    
+  </section>
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">Encore<span>FM</span></div>
+        <p class="footer-desc">The world's smartest live music archive. Powered by community and AI.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <p class="footer-email">
+          <a href="mailto:encorefrm@encore.com">encorefrm@encore.com</a>
+        </p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 Encore FM · Group 1 · Columbia University</span>
+    </div>
+  </footer>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <span class="toast-icon">✦</span>
+    <div class="toast-text"></div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

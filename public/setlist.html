@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encore FM — Setlist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ============================================================
+       SETLIST PAGE — page-specific styles
+       ============================================================ */
+
+    .setlist-page-header {
+      padding: 120px 48px 48px;
+      background: linear-gradient(135deg, #0D0A0B 0%, #1A0808 60%, #0D0A0B 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .setlist-page-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 70% 50%, rgba(192,44,102,0.2) 0%, transparent 60%);
+    }
+
+    .setlist-breadcrumb {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      z-index: 2;
+    }
+    .setlist-breadcrumb a { color: var(--gray); text-decoration: none; transition: color 0.2s; }
+    .setlist-breadcrumb a:hover { color: white; }
+    .setlist-breadcrumb span { color: var(--red-light); }
+
+    .setlist-page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(40px, 5vw, 72px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -2px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 2;
+    }
+    .setlist-page-title em { font-style: italic; color: var(--red-light); }
+
+    .setlist-page-meta {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
+    }
+    .setlist-meta-pill {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 7px 16px;
+      border-radius: 100px;
+    }
+
+    /* TWO-COLUMN LAYOUT (regular past-show view) */
+    .setlist-page-body {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 0;
+      min-height: 70vh;
+    }
+
+    /* LEFT — FULL SETLIST + REVIEWS */
+    .setlist-main {
+      padding: 56px 48px;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .setlist-main-label { margin-bottom: 24px; }
+
+    .setlist-full-tracks { list-style: none; }
+    .setlist-full-track {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: all 0.2s;
+      cursor: default;
+    }
+    .setlist-full-track:hover {
+      padding-left: 12px;
+      border-bottom-color: rgba(192,44,102,0.25);
+    }
+    .setlist-full-track:hover .track-num { color: var(--red-light); }
+
+    .track-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.18);
+      min-width: 28px;
+      transition: color 0.2s;
+    }
+    .track-name {
+      font-size: 15px;
+      color: rgba(255,255,255,0.85);
+      flex: 1;
+    }
+    .track-special {
+      font-size: 10px;
+      color: var(--red-light);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: rgba(192,44,102,0.12);
+      padding: 4px 10px;
+      border-radius: 100px;
+      border: 1px solid rgba(192,44,102,0.2);
+    }
+    .track-special-rare { color: var(--red-light); font-size: 9px; }
+
+    /* REVIEWS */
+    .reviews-divider {
+      margin-top: 40px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .reviews-label { margin-bottom: 20px; }
+
+    .review-item {
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .review-item:last-child { border-bottom: none; }
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .review-author {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.5);
+    }
+    .review-stars { font-size: 11px; color: var(--red-light); }
+    .review-text {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.6;
+      font-style: italic;
+    }
+    .add-review-btn { display: inline-block; margin-top: 24px; }
+
+    /* RIGHT — SIDEBAR */
+    .setlist-sidebar {
+      padding: 56px 36px;
+      background: rgba(255,255,255,0.015);
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+    .sidebar-section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 6px;
+    }
+    .sidebar-section-sub {
+      font-size: 12px;
+      color: var(--gray);
+      margin-bottom: 24px;
+    }
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    /* SONG PREDICTOR BARS (sidebar version) */
+    .prediction-track { margin-bottom: 14px; }
+    .prediction-track-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .prediction-track-name { font-size: 13px; color: rgba(255,255,255,0.85); }
+    .prediction-pct {
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--red-light);
+    }
+    .prediction-bar-bg {
+      height: 4px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .prediction-bar-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--red), var(--red-light));
+      border-radius: 100px;
+      transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 0%;
+    }
+
+    /* VIBE CHECK BOX */
+    .vibe-check-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 20px;
+    }
+    .vibe-check-text {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.75;
+      font-style: italic;
+      margin-bottom: 16px;
+    }
+    .vibe-check-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .vibe-generate-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--red) 0%, var(--red-light) 100%);
+      color: white;
+      border: none;
+      padding: 13px;
+      border-radius: 12px;
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: none;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    .vibe-generate-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+    }
+    .vibe-generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(192,44,102,0.45);
+    }
+    .vibe-powered {
+      font-size: 11px;
+      color: rgba(255,255,255,0.2);
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    /* VIBE LOADING SPINNER */
+    .vibe-loading {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+    .vibe-loading.show { display: block; }
+    .vibe-loading-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .vibe-loading-dot {
+      width: 8px; height: 8px;
+      background: var(--red-light);
+      border-radius: 50%;
+      animation: dotPulse 1.4s ease-in-out infinite;
+    }
+    .vibe-loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .vibe-loading-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dotPulse {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+    .vibe-loading-text {
+      font-size: 12px;
+      color: var(--gray);
+      font-style: italic;
+    }
+
+    @media (max-width: 1024px) {
+      .setlist-page-body { grid-template-columns: 1fr; }
+      .setlist-main { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    }
+
+    /* ============================================================
+       UPCOMING SHOW PREDICTION VIEW (?upcoming=<id>)
+       ============================================================ */
+
+    .upcoming-page-body {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 0;
+      min-height: 70vh;
+    }
+
+    .upcoming-main {
+      padding: 56px 48px;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .upcoming-main-label {
+      margin-bottom: 16px;
+      color: var(--red-light) !important;
+    }
+    .upcoming-explainer {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+      margin-bottom: 36px;
+      font-style: italic;
+      max-width: 600px;
+    }
+
+    /* Larger prediction bars in the main upcoming view */
+    #upcomingPredictions .prediction-track {
+      margin-bottom: 22px;
+    }
+    #upcomingPredictions .prediction-track-name {
+      font-size: 16px;
+    }
+    #upcomingPredictions .prediction-pct {
+      font-size: 14px;
+    }
+    #upcomingPredictions .prediction-bar-bg {
+      height: 6px;
+    }
+
+    .upcoming-method-box {
+      margin-top: 48px;
+      padding: 24px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+    }
+    .upcoming-method-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--red-light);
+      margin-bottom: 10px;
+    }
+    .upcoming-method-text {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+    }
+
+    .upcoming-sidebar {
+      padding: 56px 36px;
+      background: rgba(255,255,255,0.015);
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .upcoming-info-box .upcoming-show-meta { margin-top: 12px; }
+    .upcoming-show-meta p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.6;
+      margin-bottom: 6px;
+    }
+    .upcoming-show-meta strong {
+      color: white;
+      font-weight: 600;
+    }
+
+    .upcoming-recent-show {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .upcoming-recent-show:last-child { border-bottom: none; }
+    .upcoming-recent-show-date {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.4);
+      min-width: 60px;
+    }
+    .upcoming-recent-show-info {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+    }
+    .upcoming-recent-show-info-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      margin-top: 2px;
+    }
+
+    .upcoming-cta-text {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+      margin-bottom: 14px;
+      font-style: italic;
+    }
+
+    @media (max-width: 1024px) {
+      .upcoming-page-body { grid-template-columns: 1fr; }
+      .upcoming-main { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-logo">Encore<span>FM</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#artists">Artists</a></li>
+      <li><a href="index.html#vibes">Reviews</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="add.html" class="btn-primary">+ Add Setlist</a>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER (shared between both view modes) -->
+  <div class="setlist-page-header">
+    <!-- Header rendered dynamically by main.js -->
+    <div class="setlist-breadcrumb" id="setlistBreadcrumb">
+      <a href="index.html">Home</a> › <span>Loading…</span>
+    </div>
+    <h1 class="setlist-page-title" id="setlistPageTitle">Loading…</h1>
+    <div class="setlist-page-meta" id="setlistPageMeta"></div>
+  </div>
+
+  <!-- VIEW MODE: PAST SHOW (default — hidden when URL has ?upcoming=<id>) -->
+  <div id="setlistViewMode">
+
+    <!-- BODY: SETLIST + SIDEBAR -->
+    <div class="setlist-page-body">
+
+      <!-- LEFT: FULL SETLIST -->
+      <div class="setlist-main">
+
+        <div class="section-label setlist-main-label">Full Setlist</div>
+
+        <!-- Track list rendered dynamically by main.js -->
+        <ul class="setlist-full-tracks" id="setlistTracks">
+          <li class="setlist-full-track"><span class="track-name" style="opacity:0.4;">Loading tracks…</span></li>
+        </ul>
+
+        <!-- RAW REVIEWS -->
+        <div class="reviews-divider">
+          <div class="section-label reviews-label">Raw Reviews</div>
+
+          <!-- Reviews rendered dynamically by main.js -->
+          <div id="reviewsList">
+            <div class="review-item" style="opacity:0.4;">
+              <p class="review-text">Loading reviews…</p>
+            </div>
+          </div>
+
+          <a href="add.html" class="btn-primary add-review-btn">+ Add Your Review</a>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: SIDEBAR -->
+      <div class="setlist-sidebar">
+
+        <!-- SONG PREDICTOR -->
+        <div>
+          <div class="sidebar-section-title">Song Predictor</div>
+          <div class="sidebar-section-sub">Next show · Likelihood forecast</div>
+
+          <!-- Predictions rendered dynamically by main.js -->
+          <div id="predictionTracks">
+            <div class="prediction-track" style="opacity:0.4;">
+              <div class="prediction-track-header"><span class="prediction-track-name">Loading predictions…</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- VIBE CHECK -->
+        <div>
+          <div class="sidebar-section-title">✨ Vibe Check</div>
+          <div class="sidebar-section-sub">AI-synthesized from fan reviews</div>
+          <div class="vibe-check-box" id="vibeCheckBox">
+            <!-- Vibe Check rendered dynamically by main.js -->
+            <p class="vibe-check-text" id="vibeCheckText" style="opacity:0.4;">Loading vibe check…</p>
+            <div class="vibe-check-tags" id="vibeCheckTags"></div>
+          </div>
+
+          <div class="vibe-loading" id="vibeLoading">
+            <div class="vibe-loading-dots">
+              <div class="vibe-loading-dot"></div>
+              <div class="vibe-loading-dot"></div>
+              <div class="vibe-loading-dot"></div>
+            </div>
+            <p class="vibe-loading-text">AI is reading the reviews...</p>
+          </div>
+
+          <button class="vibe-generate-btn" id="vibeBtn" onclick="generateVibe()">
+            ✦ Regenerate Vibe Check
+          </button>
+          <p class="vibe-powered">Powered by AI</p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  <!-- end #setlistViewMode -->
+
+  <!-- VIEW MODE: UPCOMING SHOW PREDICTION (shown only when URL has ?upcoming=<id>) -->
+  <div id="upcomingViewMode" style="display:none;">
+    <div class="upcoming-page-body">
+
+      <!-- LEFT: PREDICTED SONGS -->
+      <div class="upcoming-main">
+        <div class="section-label upcoming-main-label">✦ AI Predicted Setlist</div>
+        <p class="upcoming-explainer">
+          Based on the artist's last 20 shows, weighted by frequency and recency.
+          Songs marked <span class="track-special-rare">RARE</span> have appeared in 2 or fewer recent setlists.
+        </p>
+
+        <div id="upcomingPredictions">
+          <div class="prediction-track" style="opacity:0.4;">
+            <div class="prediction-track-header">
+              <span class="prediction-track-name">Loading predictions…</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="upcoming-method-box">
+          <div class="upcoming-method-label">How this works</div>
+          <p class="upcoming-method-text">
+            Encore FM analyzes every song this artist has played at recent shows. Each song's likelihood is computed from how often it appears (frequency) and how recently (recency boost). Rare deep cuts are flagged separately so fans don't miss the unexpected moments.
+          </p>
+        </div>
+      </div>
+
+      <!-- RIGHT: SHOW INFO + RECENT HISTORY + CTA -->
+      <div class="upcoming-sidebar">
+
+        <div class="upcoming-info-box">
+          <div class="sidebar-section-title">About this show</div>
+          <div id="upcomingShowMeta" class="upcoming-show-meta">
+            <p style="opacity:0.4;">Loading…</p>
+          </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <div>
+          <div class="sidebar-section-title">Recent setlists</div>
+          <div class="sidebar-section-sub">What this artist has been playing</div>
+          <div id="upcomingRecentShows">
+            <p style="opacity:0.4;font-size:13px;">Loading recent shows…</p>
+          </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <div class="upcoming-cta">
+          <p class="upcoming-cta-text">When this show happens, fans will log it here and a Vibe Check will be auto-generated.</p>
+          <a href="#" class="vibe-generate-btn" style="text-decoration:none;display:block;text-align:center;" onclick="event.preventDefault(); showToastMsg('🔔','Notifications','Coming in a future sprint.');">
+            ✦ Notify me when it's logged
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <!-- end #upcomingViewMode -->
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">Encore<span>FM</span></div>
+        <p class="footer-desc">The world's smartest live music archive. Powered by community and AI.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <p class="footer-email">
+          <a href="mailto:encorefrm@encore.com">encorefrm@encore.com</a>
+        </p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 Encore FM · Group 1 · Columbia University</span>
+    </div>
+  </footer>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <span class="toast-icon">✦</span>
+    <div class="toast-text"></div>
+  </div>
+
+  <script src="main.js"></script>
+  <script>
+    // ============================================================
+    // VIBE CHECK REGENERATE
+    // (only triggered on the past-show view, where setlistId is in URL)
+    // ============================================================
+    async function generateVibe() {
+      const box     = document.getElementById('vibeCheckBox');
+      const loading = document.getElementById('vibeLoading');
+      const btn     = document.getElementById('vibeBtn');
+      const textEl  = document.getElementById('vibeCheckText');
+      const tagsEl  = document.getElementById('vibeCheckTags');
+
+      // Read the current setlist id from the URL — we're already on /setlist.html?id=...
+      const setlistId = new URLSearchParams(window.location.search).get('id');
+      if (!setlistId) return;
+
+      // UI: hide vibe text, show loading spinner, disable button
+      box.style.display = 'none';
+      loading.classList.add('show');
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+
+      try {
+        // POST forces regeneration (bypasses cache); GET would only return cached.
+        const res = await fetch(`/api/reviews/vibecheck/generate?setlistId=${encodeURIComponent(setlistId)}`, {
+          method: 'POST',
+        });
+        if (!res.ok) throw new Error(`API failed: ${res.status}`);
+        const data = await res.json();
+
+        // Update the vibe text and tags with Claude's fresh response
+        textEl.textContent = data.vibeText || '';
+        textEl.style.opacity = '1';
+        if (tagsEl && Array.isArray(data.tags)) {
+          tagsEl.innerHTML = data.tags
+            .map(t => `<span class="vibe-tag">${t.replace(/[<>&"']/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]))}</span>`)
+            .join('');
+        }
+      } catch (err) {
+        console.error('Failed to regenerate vibe check:', err);
+        textEl.textContent = 'Failed to regenerate. Try again.';
+      } finally {
+        // Always restore UI state, even on error
+        loading.classList.remove('show');
+        box.style.display = 'block';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    }
+  </script>
+</body>
+</html>

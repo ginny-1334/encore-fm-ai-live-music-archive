@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encore FM — Add Setlist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ============================================================
+       ADD SETLIST PAGE — page-specific styles
+       ============================================================ */
+
+    .add-page-header {
+      padding: 140px 48px 56px;
+      background: linear-gradient(135deg, #09080D 0%, #1a0a0a 50%, #09080D 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .add-page-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 60%, rgba(192,57,43,0.18) 0%, transparent 60%);
+    }
+    .add-page-eyebrow {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--red-light);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
+    }
+    .add-page-eyebrow::before {
+      content: '';
+      width: 28px; height: 1px;
+      background: var(--red-light);
+    }
+    .add-page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(44px, 6vw, 80px);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -2.5px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 2;
+    }
+    .add-page-title em { font-style: italic; color: var(--red-light); }
+    .add-page-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.45);
+      position: relative;
+      z-index: 2;
+      max-width: 480px;
+      line-height: 1.7;
+    }
+
+    /* STEP PROGRESS BAR */
+    .steps-bar {
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 20px 48px;
+      display: flex;
+      gap: 0;
+      align-items: center;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 28px 0 0;
+      opacity: 0.35;
+      transition: opacity 0.3s;
+    }
+    .step.active { opacity: 1; }
+    .step.done   { opacity: 0.6; }
+    .step-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      flex-shrink: 0;
+    }
+    .step.active .step-num { background: var(--red); border-color: var(--red); color: white; }
+    .step.done   .step-num { background: rgba(192,57,43,0.2); border-color: rgba(192,57,43,0.4); color: var(--red-light); }
+    .step-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+    }
+    .step.active .step-label { color: white; }
+    .step-arrow { color: rgba(255,255,255,0.15); margin-right: 16px; font-size: 14px; }
+
+    /* TWO-COLUMN LAYOUT */
+    .add-page-body {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      min-height: 80vh;
+    }
+    .add-form-main {
+      padding: 56px 48px;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* FORM SECTIONS */
+    .form-section { margin-bottom: 40px; }
+    .form-section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .form-section-num {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(192,57,43,0.15);
+      border: 1px solid rgba(192,57,43,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--red-light);
+      flex-shrink: 0;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 8px;
+      display: block;
+    }
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: white;
+      outline: none;
+      transition: all 0.25s;
+      appearance: none;
+    }
+    .form-input::placeholder,
+    .form-textarea::placeholder { color: rgba(255,255,255,0.2); }
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: rgba(192,57,43,0.5);
+      background: rgba(192,57,43,0.05);
+      box-shadow: 0 0 0 3px rgba(192,57,43,0.08);
+    }
+    .form-textarea { resize: none; height: 120px; line-height: 1.7; }
+
+    /* DRAG & DROP ZONE */
+    .drag-zone {
+      background: rgba(255,255,255,0.025);
+      border: 1.5px dashed rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 12px;
+      transition: all 0.25s;
+      min-height: 80px;
+    }
+    .drag-zone.drag-over { border-color: var(--red); background: rgba(192,57,43,0.06); }
+    .drag-zone-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      margin-bottom: 12px;
+      display: block;
+    }
+    .drag-items { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .drag-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      cursor: grab;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .drag-item:active  { cursor: grabbing; }
+    .drag-item.dragging    { opacity: 0.4; transform: scale(0.98); }
+    .drag-item.drag-target { border-color: var(--red); background: rgba(192,57,43,0.1); }
+    .drag-handle  { color: rgba(255,255,255,0.25); font-size: 14px; }
+    .drag-item-num  {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.2);
+      min-width: 20px;
+    }
+    .drag-item-name { flex: 1; font-size: 13px; color: rgba(255,255,255,0.8); }
+    .drag-item-remove {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.2);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: all 0.2s;
+      line-height: 1;
+    }
+    .drag-item-remove:hover { color: var(--red-light); background: rgba(192,57,43,0.15); }
+
+    .add-song-row { display: flex; gap: 10px; margin-bottom: 6px; }
+    .add-song-input {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: white;
+      outline: none;
+      transition: all 0.25s;
+    }
+    .add-song-input::placeholder { color: rgba(255,255,255,0.2); }
+    .add-song-input:focus { border-color: rgba(192,57,43,0.5); }
+    .add-song-btn {
+      background: rgba(192,57,43,0.15);
+      border: 1px solid rgba(192,57,43,0.25);
+      color: var(--red-light);
+      padding: 11px 18px;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .add-song-btn:hover { background: rgba(192,57,43,0.25); border-color: var(--red-light); }
+    .drag-hint { font-size: 11px; color: rgba(255,255,255,0.2); font-style: italic; margin-top: 6px; }
+
+    /* SUBMIT BUTTON */
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--red) 0%, var(--red-light) 100%);
+      color: white;
+      border: none;
+      padding: 18px;
+      border-radius: 14px;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .btn-submit::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+    }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(192,57,43,0.5); }
+
+    /* SIDEBAR */
+    .add-sidebar {
+      padding: 56px 36px;
+      background: rgba(255,255,255,0.015);
+    }
+    .add-sidebar-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 6px;
+    }
+    .add-sidebar-sub {
+      font-size: 12px;
+      color: var(--gray);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+    .add-feature {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .add-feature:last-child { border-bottom: none; }
+    .add-feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: rgba(192,57,43,0.12);
+      border: 1px solid rgba(192,57,43,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .add-feature h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 4px;
+    }
+    .add-feature p { font-size: 12px; color: var(--gray); line-height: 1.6; }
+
+    /* SUCCESS OVERLAY */
+    .success-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(9,8,13,0.97);
+      z-index: 800;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      backdrop-filter: blur(24px);
+    }
+    .success-overlay.show { display: flex; }
+    .success-orb {
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(123,94,167,0.25) 0%, transparent 70%);
+      filter: blur(60px);
+    }
+    .success-icon {
+      font-size: 72px;
+      margin-bottom: 24px;
+      animation: successPop 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      z-index: 2;
+    }
+    @keyframes successPop {
+      0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+      100% { transform: scale(1) rotate(0deg);   opacity: 1; }
+    }
+    .success-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 56px;
+      font-weight: 900;
+      color: white;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 2;
+      letter-spacing: -2px;
+    }
+    .success-title em { font-style: italic; color: var(--red-light); }
+    .success-sub {
+      font-size: 16px;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 40px;
+      line-height: 1.7;
+      position: relative;
+      z-index: 2;
+    }
+    .success-actions { display: flex; gap: 12px; position: relative; z-index: 2; }
+
+    @media (max-width: 1024px) {
+      .add-page-body { grid-template-columns: 1fr; }
+      .add-form-main { border-right: none; }
+    }
+    @media (max-width: 768px) {
+      .add-page-header { padding: 100px 24px 40px; }
+      .steps-bar        { padding: 16px 24px; }
+      .add-form-main    { padding: 40px 24px; }
+      .form-row         { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+
+  <!-- NAV -->
+ <nav>
+    <a href="index.html" class="nav-logo">Encore<span>FM</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#artists">Artists</a></li>
+      <li><a href="index.html#vibes">Reviews</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="add.html" class="btn-primary">+ Add Setlist</a>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <div class="add-page-header">
+    <div class="add-page-eyebrow">Share The Vibe</div>
+    <h1 class="add-page-title">You Were<br><em>There.</em></h1>
+    <p class="add-page-sub">Help the community relive the magic. Log your setlist and let AI turn your review into an instant Vibe Check.</p>
+  </div>
+
+  <!-- STEP PROGRESS -->
+  <div class="steps-bar">
+    <div class="step active" id="step1">
+      <div class="step-num">1</div>
+      <div class="step-label">Show Info</div>
+    </div>
+    <span class="step-arrow">›</span>
+    <div class="step" id="step2">
+      <div class="step-num">2</div>
+      <div class="step-label">Setlist</div>
+    </div>
+    <span class="step-arrow">›</span>
+    <div class="step" id="step3">
+      <div class="step-num">3</div>
+      <div class="step-label">Your Review</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="add-page-body">
+
+    <!-- MAIN FORM -->
+    <!--
+      TODO [DB]: On submit, POST to /api/setlists
+      Body: { artist, venue, city, date, songs: [{ name, order }], review }
+      On success: redirect to the newly created setlist page.
+      Remove the success overlay and replace with actual redirect.
+    -->
+    <div class="add-form-main">
+
+      <!-- SECTION 1: SHOW DETAILS -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <div class="form-section-num">1</div>
+          Show Details
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Artist *</label>
+            <input class="form-input" type="text" placeholder="e.g. My Bloody Valentine" id="formArtist" oninput="updateStep()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Venue *</label>
+            <input class="form-input" type="text" placeholder="e.g. Royal Albert Hall" id="formVenue" oninput="updateStep()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <input class="form-input" type="text" placeholder="e.g. London, UK" id="formCity">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date *</label>
+            <input class="form-input" type="date" id="formDate">
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: SETLIST -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <div class="form-section-num">2</div>
+          Drop the Setlist
+        </div>
+        <div class="drag-zone" id="dragZone">
+          <span class="drag-zone-label">Drag to reorder tracks</span>
+          <ul class="drag-items" id="dragList"></ul>
+        </div>
+        <div class="add-song-row">
+          <input class="add-song-input" type="text" placeholder="+ Type a song name and press Enter..." id="songInput">
+          <button class="add-song-btn" onclick="addSong()">Add</button>
+        </div>
+        <p class="drag-hint">Drag tracks to arrange in the correct order</p>
+      </div>
+
+      <!-- SECTION 3: REVIEW -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <div class="form-section-num">3</div>
+          Your Review
+        </div>
+        <div class="form-group">
+          <label class="form-label">How did it feel? (AI will summarize into a Vibe Check)</label>
+          <textarea class="form-textarea" style="height:140px;" placeholder="Describe the energy, crowd, sound quality, standout moments..." id="formReview"></textarea>
+        </div>
+      </div>
+
+      <button class="btn-submit" onclick="submitForm()">
+        Submit & Generate Vibe Check ✦
+      </button>
+    </div>
+
+    <!-- SIDEBAR: WHY ADD A SHOW -->
+    <div class="add-sidebar">
+      <div class="add-sidebar-title">Why Add a Show?</div>
+      <div class="add-sidebar-sub">Your contribution helps the whole community experience live music smarter.</div>
+      <div class="add-feature">
+        <div class="add-feature-icon">☰</div>
+        <div>
+          <h4>Drag & Drop Setlist</h4>
+          <p>Arrange tracks in the exact order they were played. No more messy text forms.</p>
+        </div>
+      </div>
+      <div class="add-feature">
+        <div class="add-feature-icon">◎</div>
+        <div>
+          <h4>Powers Song Predictor</h4>
+          <p>Your data trains the AI to forecast future setlists with greater accuracy.</p>
+        </div>
+      </div>
+      <div class="add-feature">
+        <div class="add-feature-icon">✦</div>
+        <div>
+          <h4>AI Vibe Check</h4>
+          <p>Your review gets synthesized by AI into a clean summary for future fans.</p>
+        </div>
+      </div>
+      <div class="add-feature">
+        <div class="add-feature-icon">◈</div>
+        <div>
+          <h4>Build Your Archive</h4>
+          <p>Every show you log becomes part of your personal concert history.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">Encore<span>FM</span></div>
+        <p class="footer-desc">The world's smartest live music archive. Powered by community and AI.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <p class="footer-email">
+          <a href="mailto:encorefrm@encore.com">encorefrm@encore.com</a>
+        </p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 Encore FM · Group 1 · Columbia University</span>
+    </div>
+  </footer>
+
+  <!-- SUCCESS OVERLAY -->
+  <!--
+    TODO [DB]: Remove this overlay once form submit redirects to the real setlist page.
+  -->
+  <div class="success-overlay" id="successOverlay">
+    <div class="success-orb"></div>
+    <div class="success-icon">✦</div>
+    <h2 class="success-title">Vibe<br><em>Received.</em></h2>
+    <p class="success-sub">Your setlist has been added to the archive.<br>AI is generating the Vibe Check now...</p>
+    <div class="success-actions">
+      <a href="index.html" class="btn-large primary">Back to Home</a>
+      <a href="artist.html" class="btn-large outline">View Artist</a>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <span class="toast-icon">✦</span>
+    <div class="toast-text"></div>
+  </div>
+
+  <script>
+    // ============================================================
+    // CUSTOM CURSOR
+    // ============================================================
+    const cursor = document.getElementById('cursor');
+
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX - 6 + 'px';
+      cursor.style.top  = e.clientY - 6 + 'px';
+    });
+
+    document.querySelectorAll('a, button, .drag-item, input[type="date"]').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.style.transform = 'scale(2)');
+      el.addEventListener('mouseleave', () => cursor.style.transform = 'scale(1)');
+    });
+
+
+    // ============================================================
+    // SCROLL ANIMATIONS
+    // ============================================================
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+
+    // ============================================================
+    // TOAST NOTIFICATION
+    // ============================================================
+    function showToast(icon, title, msg) {
+      const t = document.getElementById('toast');
+      if (!t) return;
+      t.querySelector('.toast-icon').textContent = icon;
+      t.querySelector('.toast-text').innerHTML = `<strong>${title}</strong> ${msg}`;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+
+    // ============================================================
+    // STEP INDICATOR — marks steps as active/done as user fills form
+    // ============================================================
+    function updateStep() {
+      const artist = document.getElementById('formArtist').value.trim();
+      const venue  = document.getElementById('formVenue').value.trim();
+      if (artist && venue) {
+        document.getElementById('step1').classList.add('done');
+        document.getElementById('step2').classList.add('active');
+      }
+    }
+
+
+    // ============================================================
+    // DRAG & DROP SETLIST
+    // ============================================================
+    let dragSrc = null;
+    const dragList = document.getElementById('dragList');
+
+    function updateNumbers() {
+      dragList.querySelectorAll('.drag-item').forEach((item, i) => {
+        item.querySelector('.drag-item-num').textContent = i + 1;
+      });
+    }
+
+    function addDragListeners(item) {
+      item.addEventListener('dragstart', function () {
+        dragSrc = this;
+        setTimeout(() => this.classList.add('dragging'), 0);
+      });
+      item.addEventListener('dragend', function () {
+        this.classList.remove('dragging');
+        document.querySelectorAll('.drag-item').forEach(i => i.classList.remove('drag-target'));
+        updateNumbers();
+      });
+      item.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        document.querySelectorAll('.drag-item').forEach(i => i.classList.remove('drag-target'));
+        if (this !== dragSrc) this.classList.add('drag-target');
+      });
+      item.addEventListener('drop', function (e) {
+        e.preventDefault();
+        if (dragSrc && this !== dragSrc) {
+          const all = [...dragList.querySelectorAll('.drag-item')];
+          if (all.indexOf(dragSrc) < all.indexOf(this)) {
+            dragList.insertBefore(dragSrc, this.nextSibling);
+          } else {
+            dragList.insertBefore(dragSrc, this);
+          }
+        }
+        this.classList.remove('drag-target');
+        updateNumbers();
+      });
+    }
+
+    // Attach drag listeners to any pre-existing items
+    dragList.querySelectorAll('.drag-item').forEach(addDragListeners);
+
+    // Prevent default dragover on the container
+    document.getElementById('dragZone').addEventListener('dragover', e => e.preventDefault());
+
+    // Add a new song row
+    function addSong() {
+      const input = document.getElementById('songInput');
+      const name  = input.value.trim();
+      if (!name) return;
+
+      const li = document.createElement('li');
+      li.className  = 'drag-item';
+      li.draggable  = true;
+      li.innerHTML  = `
+        <span class="drag-handle">⠿</span>
+        <span class="drag-item-num">${dragList.children.length + 1}</span>
+        <span class="drag-item-name">${name}</span>
+        <button class="drag-item-remove" onclick="removeSong(this)">×</button>
+      `;
+      dragList.appendChild(li);
+      addDragListeners(li);
+      input.value = '';
+      input.focus();
+      updateNumbers();
+
+      // Advance step indicator once 2+ songs are added
+      if (dragList.children.length >= 2) {
+        document.getElementById('step2').classList.add('done');
+        document.getElementById('step3').classList.add('active');
+      }
+    }
+
+    // Remove a song row
+    function removeSong(btn) {
+      btn.closest('.drag-item').remove();
+      updateNumbers();
+    }
+
+    // Allow Enter key to trigger addSong
+    document.getElementById('songInput').addEventListener('keypress', e => {
+      if (e.key === 'Enter') addSong();
+    });
+
+
+    // ============================================================
+    // FORM SUBMIT
+    // ============================================================
+    async function submitForm() {
+      // Read form values
+      const artist = document.getElementById('formArtist').value.trim();
+      const venue  = document.getElementById('formVenue').value.trim();
+      const city   = document.getElementById('formCity')?.value.trim() || '';
+      const date   = document.getElementById('formDate')?.value || '';
+      const review = document.getElementById('formReview')?.value.trim() || '';
+
+      // Read song list from the drag-and-drop list (Minkyung's existing dragList).
+      // We pull the song name from each .drag-item-name element, in display order.
+      const dragItems = document.querySelectorAll('#dragList .drag-item');
+      const songs = Array.from(dragItems).map((el, i) => ({
+        name: el.querySelector('.drag-item-name').textContent.trim(),
+        order: i + 1,
+      })).filter(s => s.name.length > 0);
+
+      // Validate
+      if (!artist || !venue) {
+        showToast('⚠️', 'Missing info', 'Please fill in Artist and Venue');
+        return;
+      }
+      if (!city) {
+        showToast('⚠️', 'Missing info', 'Please add a city');
+        return;
+      }
+      if (!date) {
+        showToast('⚠️', 'Missing info', 'Please pick a date');
+        return;
+      }
+      if (songs.length === 0) {
+        showToast('⚠️', 'No songs', 'Add at least one song to the setlist');
+        return;
+      }
+
+      // Disable the submit button while we wait for the API.
+      const btn = document.querySelector('.form-submit-btn') || document.querySelector('button[onclick*="submitForm"]');
+      if (btn) {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+      }
+
+      try {
+        const res = await fetch('/api/setlists', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ artist, venue, city, date, songs, review }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || `Server returned ${res.status}`);
+        }
+
+        const newSetlist = await res.json();
+
+        // Show success overlay briefly, then redirect to the new setlist page
+        // so the user can see their submission rendered + the AI vibe check.
+        document.getElementById('successOverlay').classList.add('show');
+        setTimeout(() => {
+          window.location.href = `setlist.html?id=${encodeURIComponent(newSetlist._id)}`;
+        }, 1500);
+      } catch (err) {
+        console.error('Submit failed:', err);
+        showToast('⚠️', 'Submit failed', err.message);
+        if (btn) {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        }
+      }
+    }
+
+    // Close success overlay on Escape key
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.getElementById('successOverlay').classList.remove('show');
+    });
+  </script>
+</body>
+</html>

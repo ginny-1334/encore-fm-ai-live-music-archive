@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encore FM — Artist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ============================================================
+       ARTIST PAGE — page-specific styles
+       ============================================================ */
+
+    .artist-hero {
+      min-height: 70vh;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding: 80px 48px 60px;
+      overflow: hidden;
+    }
+    .artist-hero-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #2a0000 0%, #0a0a1a 50%, #1a000a 100%);
+    }
+    .artist-hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+    }
+    .artist-hero-orb-1 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(192,57,43,0.25) 0%, transparent 70%);
+      top: -200px; right: -100px;
+    }
+    .artist-hero-orb-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(242,160,160,0.1) 0%, transparent 70%);
+      bottom: 0; left: 200px;
+    }
+    .artist-hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 700px;
+    }
+    .artist-back {
+      position: absolute;
+      top: 100px; left: 48px;
+      z-index: 2;
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.2s;
+    }
+    .artist-back:hover { color: white; }
+
+    .artist-genre-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--red-light);
+      margin-bottom: 20px;
+    }
+    .artist-genre-tag::before {
+      content: '';
+      width: 28px; height: 1px;
+      background: var(--red-light);
+    }
+    .artist-name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(52px, 7vw, 96px);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -3px;
+      margin-bottom: 24px;
+    }
+    .artist-name em {
+      font-style: italic;
+      color: var(--red-light);
+    }
+    .artist-meta {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+    .artist-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .artist-stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: white;
+    }
+    .artist-stat-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+    .artist-stat-divider {
+      width: 1px;
+      height: 40px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* BIO STRIP */
+    .bio-strip {
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 32px 48px;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .bio-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--red-light);
+    }
+    .bio-text {
+      font-size: 14px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.8;
+    }
+
+    /* PAST SHOWS GRID */
+    .shows-section {
+      padding: 72px 48px;
+      background: var(--dark);
+    }
+    .shows-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 40px;
+    }
+    .shows-header .section-title { margin-bottom: 0; }
+
+    .shows-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .show-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 18px;
+      padding: 24px;
+      text-decoration: none;
+      display: block;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .show-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(to right, var(--red), var(--pink));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .show-card:hover {
+      border-color: rgba(192,57,43,0.3);
+      background: rgba(192,57,43,0.05);
+      transform: translateY(-4px);
+    }
+    .show-card:hover::before { opacity: 1; }
+
+    .show-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .show-date-badge {
+      background: var(--red);
+      border-radius: 10px;
+      padding: 8px 14px;
+      text-align: center;
+    }
+    .show-date-month {
+      font-family: 'Syne', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+    }
+    .show-date-day {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-weight: 900;
+      color: white;
+      line-height: 1.1;
+    }
+    .show-tracks-count {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--gray);
+      text-align: right;
+    }
+    .show-tracks-year {
+      color: var(--red-light);
+    }
+    .show-venue {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 4px;
+    }
+    .show-city {
+      font-size: 13px;
+      color: var(--gray);
+      margin-bottom: 16px;
+    }
+    .show-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .show-vibe-preview {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      font-style: italic;
+      max-width: 160px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .show-arrow {
+      color: var(--red-light);
+      font-size: 16px;
+      transition: transform 0.2s;
+    }
+    .show-card:hover .show-arrow { transform: translateX(4px); }
+
+    /* UPCOMING SHOWS */
+    .upcoming-section {
+      padding: 72px 48px;
+      background: var(--dark2);
+    }
+    .upcoming-section .section-title { margin-bottom: 32px; }
+
+    .upcoming-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .upcoming-item {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 20px 28px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      transition: all 0.25s;
+      text-decoration: none;
+    }
+    .upcoming-item:hover {
+      border-color: rgba(192,57,43,0.3);
+      background: rgba(192,57,43,0.05);
+      transform: translateX(8px);
+    }
+    .upcoming-date {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      min-width: 100px;
+    }
+    .upcoming-venue { flex: 1; }
+    .upcoming-venue-name {
+      font-size: 15px;
+      color: white;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .upcoming-venue-city {
+      font-size: 12px;
+      color: var(--gray);
+    }
+    .upcoming-predict-btn {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--red-light);
+      background: rgba(192,57,43,0.1);
+      border: 1px solid rgba(192,57,43,0.2);
+      padding: 8px 18px;
+      border-radius: 100px;
+      cursor: none;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .upcoming-predict-btn:hover {
+      background: rgba(192,57,43,0.2);
+      border-color: var(--red-light);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-logo">Encore<span>FM</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#artists">Artists</a></li>
+      <li><a href="index.html#vibes">Reviews</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="add.html" class="btn-primary">+ Add Setlist</a>
+    </div>
+  </nav>
+
+  <!-- BACK LINK -->
+  <a href="index.html" class="artist-back">← Back to Home</a>
+
+  <!-- ARTIST HERO -->
+
+  <div class="artist-hero">
+    <div class="artist-hero-bg">
+      <div class="artist-hero-orb artist-hero-orb-1"></div>
+      <div class="artist-hero-orb artist-hero-orb-2"></div>
+    </div>
+
+<!-- Hero rendered dynamically by main.js -->
+    <div class="artist-hero-content" id="artistHero">
+      <div style="opacity:0.4;padding:2rem;">Loading artist…</div>
+    </div>
+  </div>
+
+<!-- Bio rendered dynamically by main.js -->
+    <section class="bio-section">
+      <div class="bio-label">ABOUT THE ARTIST</div>
+      <p class="bio-text-new" id="artistBio">Loading bio…</p>
+    </section>
+
+  <!-- PAST SHOWS -->
+  <section class="shows-section">
+    <div class="shows-header">
+      <div>
+        <div class="section-label">Past Shows</div>
+        <h2 class="section-title">Every <em>Night</em> Archived</h2>
+      </div>
+      <a href="add.html" class="btn-primary">+ Add a Show</a>
+    </div>
+
+<!-- Past shows rendered dynamically by main.js -->
+    <div class="upcoming-list fade-up" id="pastShowsGrid">
+      <div style="opacity:0.4;padding:2rem;grid-column:1/-1;">Loading shows…</div>
+    </div>
+
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- UPCOMING SHOWS -->
+  <section class="upcoming-section">
+    <div class="section-label">Upcoming Shows</div>
+    <h2 class="section-title">What's <em>Next</em></h2>
+
+    <!-- Upcoming shows rendered dynamically by main.js -->
+    <div class="upcoming-list fade-up" id="upcomingList">
+      <div style="opacity:0.4;padding:2rem;">Loading upcoming shows…</div>
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">Encore<span>FM</span></div>
+        <p class="footer-desc">The world's smartest live music archive. Powered by community and AI.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <p class="footer-email">
+          <a href="mailto:encorefrm@encore.com">encorefrm@encore.com</a>
+        </p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 Encore FM · Group 1 · Columbia University</span>
+    </div>
+  </footer>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <span class="toast-icon">✦</span>
+    <div class="toast-text"></div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
+
+
